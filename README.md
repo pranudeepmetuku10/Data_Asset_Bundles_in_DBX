@@ -19,15 +19,17 @@ The DAB method emphasizes automation, environment consistency, and version contr
 
 | Aspect | DAB Release | Non-DAB Release |
 |--------|--------------|----------------|
-| Deployment style | Declarative configuration | Imperative scripting |
-| Configuration source | Version-controlled YAML bundle | Hard-coded parameters in scripts |
-| Environment management | Defined through environment targets (e.g., dev, prod) | Managed manually or duplicated scripts |
-| Validation | Built-in bundle validation | No formal validation process |
-| Reproducibility | High; fully deterministic | Low; may vary by developer or environment |
-| CI/CD integration | Seamless integration | Requires custom scripts |
-| Best suited for | Production pipelines and multi-environment workflows | Small-scale prototypes or tests |
+| **Deployment Style** | Declarative configuration defined in YAML (Infrastructure as Code) | Imperative scripting using REST API or CLI commands |
+| **Configuration Source** | Central, version-controlled bundle (`databricks.yml`) | Hard-coded parameters in scripts or notebooks |
+| **Environment Management** | Managed through environment targets (e.g., dev, staging, prod) | Managed manually or through separate scripts |
+| **Validation** | Built-in validation using Databricks CLI (`bundle validate`) | No formal validation; errors appear during execution |
+| **Reproducibility** | High — consistent and repeatable deployments across environments | Low — deployments depend on local script state |
+| **Change Tracking** | Git-based version control of configuration | Manual script edits, limited traceability |
+| **CI/CD Integration** | Easily integrates with GitHub Actions, Azure DevOps, or Jenkins | Requires custom scripting and environment setup |
+| **Rollback Capability** | Supported through version-controlled configuration | Manual; requires re-running older scripts |
+| **Governance and Auditability** | Strong governance through centralized definitions | Limited; scattered across scripts or notebooks |
+| **Best Suited For** | Production-grade, multi-environment data and ML pipelines | Quick experiments, proofs of concept, and ad-hoc tasks |
 
----
 
 ## 3. DAB Release Concept
 

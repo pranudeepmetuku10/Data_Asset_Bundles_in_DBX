@@ -1,0 +1,36 @@
+bundle:
+  name: dab-demo-bundle
+  description: "DAB release example for Databricks Asset Bundles"
+  version: 1.0.0
+
+variables:
+  spark_version: "13.3.x-scala2.12"
+  node_type: "Standard_D4ds_v5"
+
+resources:
+  jobs:
+    etl_job:
+      name: "ETL Job - ${bundle.environment}"
+      tasks:
+        - task_key: main_task
+          notebook_task:
+            notebook_path: /Repos/dab_release/src/etl_notebook.py
+          job_cluster_key: job_cluster
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 2
+
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://adb-111111111111.12.azuredatabricks.net
+      root_path: /Workspace/Shared/dev/dab-demo
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-222222222222.12.azuredatabricks.net
+      root_path: /Workspace/Shared/prod/dab-demo

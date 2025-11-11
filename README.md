@@ -16,7 +16,6 @@ The DAB method emphasizes automation, environment consistency, and version contr
 
 ## 2. Key Differences
 
-```
 
 | Aspect | DAB Release | Non-DAB Release |
 |--------|--------------|----------------|
@@ -28,7 +27,6 @@ The DAB method emphasizes automation, environment consistency, and version contr
 | CI/CD integration | Seamless integration | Requires custom scripts |
 | Best suited for | Production pipelines and multi-environment workflows | Small-scale prototypes or tests |
 
-```
 ---
 
 ## 3. DAB Release Concept

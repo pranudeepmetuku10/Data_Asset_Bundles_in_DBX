@@ -90,12 +90,73 @@ Rollback or audit capabilities are limited, and scaling to multiple teams or reg
 
 ---
 
-## 8. Summary
+## 8. DAB Release Examples in This Repository
+
+### Basic Configuration (`dab_release.yaml`)
+This file demonstrates a simple DAB setup with:
+- Basic bundle metadata and versioning
+- Simple variable definitions (Spark version, node type)
+- A single ETL job with in-line cluster configuration
+- Development and production targets with workspace URLs
+
+Use this as a reference for getting started with DABs.
+
+### Advanced Configuration (`dab_release_full.yaml`)
+This file showcases enterprise-grade DAB features:
+
+**Cluster Configurations:**
+- Dedicated cluster definitions with autoscaling
+- AWS-specific attributes (availability zones, spot pricing)
+- Spark configurations optimized for different workloads
+- Job-specific cluster templates with varying sizes
+
+**Triggers and Scheduling:**
+- Cron-based schedules (e.g., `0 0 * * * ?` for daily at midnight)
+- Timezone support for global deployments
+- Periodic trigger intervals
+- Webhook trigger capabilities for event-driven workflows
+
+**Job Features:**
+- Multi-task pipelines with dependencies
+- Task-level timeout configurations
+- Base parameters for environment-specific behavior
+- Concurrent run limits to prevent resource exhaustion
+
+**Multi-Environment Support:**
+- Development environment with minimal resources
+- Staging environment for pre-production testing
+- Production environment with maximum scaling and timeout
+- Environment-specific variable overrides
+
+**Key Advanced Elements:**
+```yaml
+# Task dependencies
+depends_on:
+  - task_key: main_task
+
+# Autoscaling configuration
+autoscale:
+  min_workers: 2
+  max_workers: 4
+
+# Schedule definitions
+schedule:
+  quartz_cron_expression: "0 0 * * * ?"
+  timezone_id: "America/Los_Angeles"
+```
+
+This advanced example is suitable for production data pipelines, scheduled ETL workflows, and complex multi-stage data processing scenarios.
+
+---
+
+## 9. Summary
 
 The DAB release model represents a modern, scalable, and maintainable way to manage Databricks workflows.  
 By replacing manual scripts with declarative Infrastructure-as-Code definitions, teams gain reproducibility, security, and automated promotion between environments.  
 
 While non-DAB releases can still serve quick prototyping needs, DABs are the preferred standard for production-grade data and machine learning pipelines.
+
+The provided examples (`dab_release.yaml` and `dab_release_full.yaml`) illustrate how DAB configurations scale from simple single-job deployments to complex multi-environment, multi-task production pipelines with advanced scheduling and resource management.
 
 ---
 

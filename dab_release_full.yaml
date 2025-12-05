@@ -1,0 +1,152 @@
+bundle:
+  name: dab-demo-bundle-full
+  description: "Comprehensive DAB release with clusters, triggers, and scheduling"
+  version: 2.0.0
+
+variables:
+  spark_version: "13.3.x-scala2.12"
+  node_type: "Standard_D4ds_v5"
+  min_workers: 2
+  max_workers: 4
+  timeout_minutes: 120
+
+resources:
+  clusters:
+    main_cluster:
+      cluster_name: "dab-demo-main-cluster"
+      spark_version: ${var.spark_version}
+      node_type_id: ${var.node_type}
+      num_workers: ${var.min_workers}
+      autoscale:
+        min_workers: ${var.min_workers}
+        max_workers: ${var.max_workers}
+      spark_conf:
+        spark.databricks.cluster.profile: singleNode
+      aws_attributes:
+        availability: SPOT_WITH_FALLBACK
+        zone_id: us-west-2a
+
+  jobs:
+    etl_job:
+      name: "ETL Job - ${bundle.environment}"
+      tasks:
+        - task_key: main_task
+          notebook_task:
+            notebook_path: /Repos/dab_release/src/etl_notebook.py
+            base_parameters:
+              environment: ${bundle.environment}
+          job_cluster_key: job_cluster
+          timeout_seconds: 7200
+          
+        - task_key: validation_task
+          depends_on:
+            - task_key: main_task
+          notebook_task:
+            notebook_path: /Repos/dab_release/src/validation_notebook.py
+          job_cluster_key: job_cluster
+          
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: ${var.min_workers}
+            autoscale:
+              min_workers: ${var.min_workers}
+              max_workers: ${var.max_workers}
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+            aws_attributes:
+              availability: SPOT_WITH_FALLBACK
+
+      # Schedule/Trigger configuration
+      schedule:
+        quartz_cron_expression: "0 0 * * * ?"  # Daily at midnight
+        timezone_id: "America/Los_Angeles"
+        pause_status: UNPAUSED
+
+      # Trigger on external events
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      max_concurrent_runs: 1
+      timeout_seconds: 7200
+
+    scheduled_aggregation_job:
+      name: "Scheduled Aggregation Job - ${bundle.environment}"
+      tasks:
+        - task_key: aggregate_data
+          notebook_task:
+            notebook_path: /Repos/dab_release/src/aggregation_notebook.py
+          job_cluster_key: agg_cluster
+          
+      job_clusters:
+        - job_cluster_key: agg_cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 1
+            
+      schedule:
+        quartz_cron_expression: "0 30 2 * * ?"  # Daily at 2:30 AM
+        timezone_id: "UTC"
+        pause_status: UNPAUSED
+
+      timeout_seconds: 3600
+      max_concurrent_runs: 1
+
+    webhook_trigger_job:
+      name: "Webhook Triggered Job - ${bundle.environment}"
+      tasks:
+        - task_key: process_webhook
+          notebook_task:
+            notebook_path: /Repos/dab_release/src/webhook_processor.py
+          job_cluster_key: webhook_cluster
+          
+      job_clusters:
+        - job_cluster_key: webhook_cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: ${var.node_type}
+            num_workers: 1
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://adb-111111111111.12.azuredatabricks.net
+      root_path: /Workspace/Shared/dev/dab-demo
+    variables:
+      spark_version: "13.3.x-scala2.12"
+      node_type: "Standard_D3_v2"
+      min_workers: 1
+      max_workers: 2
+      timeout_minutes: 60
+
+  staging:
+    mode: development
+    workspace:
+      host: https://adb-333333333333.12.azuredatabricks.net
+      root_path: /Workspace/Shared/staging/dab-demo
+    variables:
+      spark_version: "13.3.x-scala2.12"
+      node_type: "Standard_D4ds_v5"
+      min_workers: 2
+      max_workers: 3
+      timeout_minutes: 90
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-222222222222.12.azuredatabricks.net
+      root_path: /Workspace/Shared/prod/dab-demo
+    variables:
+      spark_version: "13.3.x-scala2.12"
+      node_type: "Standard_D4ds_v5"
+      min_workers: 2
+      max_workers: 4
+      timeout_minutes: 120

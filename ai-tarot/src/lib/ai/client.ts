@@ -32,35 +32,33 @@ export async function generateTarotReading(params: {
   system: string;
   user: string;
 }): Promise<{ model: string; reading: AiReading; raw: string }> {
-  const apiKey = requireEnv("OPENAI_API_KEY");
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const apiKey = requireEnv("GEMINI_API_KEY");
+  const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
-  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const resp = await fetch(url, {
     method: "POST",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json",
-    },
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      model,
-      temperature: 0.9,
-      messages: [
-        { role: "system", content: params.system },
-        { role: "user", content: params.user },
-      ],
-      response_format: { type: "json_object" },
+      systemInstruction: { parts: [{ text: params.system }] },
+      contents: [{ role: "user", parts: [{ text: params.user }] }],
+      generationConfig: {
+        temperature: 0.9,
+        responseMimeType: "application/json",
+      },
     }),
   });
 
   if (!resp.ok) {
     const txt = await resp.text().catch(() => "");
-    throw new Error(txt || `OpenAI error (${resp.status})`);
+    throw new Error(txt || `Gemini error (${resp.status})`);
   }
 
   const json = (await resp.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
-  const raw = json.choices?.[0]?.message?.content ?? "";
+  const raw = json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   const parsedJson = JSON.parse(raw);
   const reading = readingSchema.parse(parsedJson);
 

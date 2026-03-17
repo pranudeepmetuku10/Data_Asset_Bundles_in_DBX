@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+
+  --bg0: 10 11 18; /* near-black */
+  --bg1: 14 15 26; /* midnight */
+  --bg2: 24 20 40; /* deep indigo */
+
+  --fg0: 242 240 255; /* soft pearl */
+  --fg1: 198 192 228; /* muted lilac */
+  --muted: 156 152 178;
+
+  --gold: 226 197 124;
+  --silver: 196 208 224;
+  --violet: 154 114 255;
+  --auraBlue: 66 103 255;
+
+  --card: 14 14 24 / 0.68;
+  --border: 226 197 124 / 0.14;
+
+  --shadow: 0 20px 80px rgba(0, 0, 0, 0.55);
+  --ring: 226 197 124 / 0.35;
+
+  --radius-lg: 22px;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(66, 103, 255, 0.16), transparent 60%),
+    radial-gradient(900px 700px at 80% 30%, rgba(154, 114, 255, 0.14), transparent 55%),
+    linear-gradient(180deg, rgb(var(--bg1)) 0%, rgb(var(--bg0)) 45%, rgb(var(--bg2)) 100%);
+  color: rgb(var(--fg0));
+  font-family: var(--font-sans), ui-sans-serif, system-ui;
+}
+
+::selection {
+  background: rgba(226, 197, 124, 0.22);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.app-aura {
+  pointer-events: none;
+  position: fixed;
+  inset: -40vh -20vw;
+  background: radial-gradient(900px 700px at 30% 20%, rgba(226, 197, 124, 0.08), transparent 60%),
+    radial-gradient(1000px 900px at 70% 40%, rgba(154, 114, 255, 0.10), transparent 60%),
+    radial-gradient(1100px 900px at 50% 80%, rgba(66, 103, 255, 0.10), transparent 62%);
+  filter: blur(18px);
+  opacity: 0.95;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-30%) translateY(-10%) rotate(10deg);
+    opacity: 0.0;
+  }
+  35% {
+    opacity: 0.65;
+  }
+  70% {
+    transform: translateX(30%) translateY(10%) rotate(10deg);
+    opacity: 0.0;
+  }
+  100% {
+    opacity: 0.0;
+  }
+}
